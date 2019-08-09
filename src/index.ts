@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { parse, TypeNode, InputValueDefinitionNode } from "graphql/language"
+import { parse, TypeNode, InputValueDefinitionNode, FieldDefinitionNode } from "graphql/language"
 import fs from "fs"
 import program from "commander"
 
@@ -31,7 +31,8 @@ for (const definition of schemaASTRoot.definitions) {
         const fieldStrs: string[] = []
         for (const field of definition.fields) {
           const fieldName = camelCaseToSnakeCase(field.name.value)
-          const fieldType = getFieldTypeDeclaration(field.type, field.arguments)
+          const fieldArguments = getFieldArguments(field)
+          const fieldType = getFieldTypeDeclaration(field.type, fieldArguments)
           fieldStrs.push(
             `  ${fieldName} = ${fieldType}`
           )
@@ -63,20 +64,48 @@ if (classDeclarations.length){
   })
 }
 
-function getFieldTypeDeclaration(
-  typeNode: TypeNode,
-  fieldArgs: ReadonlyArray<InputValueDefinitionNode> | undefined
-): string {
+function objToDictLiteral(obj: { [key: string]: string }): string {
+  const pairs = Object.keys(obj).map(key => `'${key}': ${obj[key]}`)
+  return `{${pairs.join(", ")}}`
+}
+
+function getFieldArguments(field: FieldDefinitionNode): string {
+  const reservedArgNames = new Set()
   const extraArgs = []
-  if (fieldArgs) {
-    for (const arg of fieldArgs) {
+  if (isSnakeCase(field.name.value)) {
+    extraArgs.push(`name='${field.name.value}'`)
+    reservedArgNames.add("name")
+  }
+  if (field.arguments) {
+    // these are the args that will make up the "args" parameter
+    let collisionArgs = null
+    for (const arg of field.arguments) {
       const argName = arg.name.value
-      const typeName = getArgumentTypeDeclaration(arg.type)
-      extraArgs.push(`${argName}=${typeName}`)
+      if (reservedArgNames.has(argName)) {
+        imports.add("Argument")
+        const typeName = `Argument(${getNestedTypeDeclaration(arg.type)})`
+        if (!collisionArgs) {
+          collisionArgs = { [argName]: typeName }
+        } else {
+          collisionArgs[argName] = typeName
+        }
+      } else {
+        const typeName = getArgumentTypeDeclaration(arg.type)
+        extraArgs.push(`${argName}=${typeName}`)
+      }
+    }
+    
+    if (collisionArgs) {
+      extraArgs.push(`args=${objToDictLiteral(collisionArgs)}`)
     }
   }
-  let extraArgsStr = extraArgs.join(", ")
+  return extraArgs.join(", ")
+}
 
+function getFieldTypeDeclaration(
+  typeNode: TypeNode,
+  extraArgsStr: string
+): string {
   switch (typeNode.kind) {
     case "NonNullType": {
       if (extraArgsStr) extraArgsStr = ", " + extraArgsStr
@@ -120,7 +149,7 @@ function getArgumentTypeDeclaration(typeNode: TypeNode) {
         imports.add(typeNode.name.value)
         return `${typeNode.name.value}()`
       } else {
-        // honestly I just don't know how to handle this case
+        // honestly I just don't feel like handling this yet
         throw new Error(`Invalid argument type ${typeNode.name.value}`)
       }
     }
@@ -145,6 +174,10 @@ function getNestedTypeDeclaration(typeNode: TypeNode): string {
 
   // @ts-ignore should never reach this line
   throw new Error(`Expected type node but node was ${typeNode.kind}`)
+}
+
+function isSnakeCase(str: string) {
+  return str.includes("_")
 }
 
 function camelCaseToSnakeCase(str: string) {
