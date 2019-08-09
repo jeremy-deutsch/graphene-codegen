@@ -147,7 +147,6 @@ function getNestedTypeDeclaration(typeNode: TypeNode): string {
   throw new Error(`Expected type node but node was ${typeNode.kind}`)
 }
 
-// TODO: convert camel case to snake case
 function camelCaseToSnakeCase(str: string) {
-  return str
+  return str.replace(/[\w]([A-Z])/g, m => m[0] + "_" + m[1]).toLowerCase();
 }

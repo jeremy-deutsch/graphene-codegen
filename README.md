@@ -2,7 +2,8 @@
 
 ### For when you have a schema but want to use Python.
 
-Note: only supports object types at the moment, and doesn't convert camel case to snake case.
+Note: only generates object types at the moment, and doesn't output classes in the right order.
+Also doesn't support default arguments yet.
 
 ### Usage
 

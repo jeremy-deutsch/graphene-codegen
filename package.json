@@ -1,6 +1,6 @@
 {
   "name": "graphene-codegen",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Generate Graphene Python boilerplate from a GraphQL schema.",
   "main": "./lib/index.js",
   "bin": {
