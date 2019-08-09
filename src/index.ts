@@ -167,7 +167,9 @@ function getNestedTypeDeclaration(typeNode: TypeNode): string {
       return `List(${getNestedTypeDeclaration(typeNode.type)})`
     }
     case "NamedType": {
-      imports.add(typeNode.name.value)
+      if (builtInScalars.has(typeNode.name.value)) {
+        imports.add(typeNode.name.value)
+      }
       return typeNode.name.value
     }
   }
