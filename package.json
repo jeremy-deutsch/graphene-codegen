@@ -1,6 +1,6 @@
 {
   "name": "graphene-codegen",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Generate Graphene Python boilerplate from a GraphQL schema.",
   "main": "./lib/index.js",
   "bin": {
@@ -19,6 +19,7 @@
     "graphene"
   ],
   "author": "jeremy-deutsch",
+  "repository": "https://github.com/jeremy-deutsch/graphene-codegen",
   "license": "ISC",
   "dependencies": {
     "commander": "^3.0.0",
