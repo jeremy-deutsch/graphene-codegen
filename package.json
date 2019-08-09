@@ -1,0 +1,32 @@
+{
+  "name": "graphene-codegen",
+  "version": "1.0.0",
+  "description": "Generate Graphene Python boilerplate from a GraphQL schema.",
+  "main": "./lib/index.js",
+  "bin": {
+    "graphene-codegen": "./lib/index.js"
+  },
+  "scripts": {
+    "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "create": "npm run build && npm run test",
+    "build": "tsc -p .",
+    "refresh": "rm -rf ./node_modules && npm install"
+  },
+  "keywords": [
+    "graphql",
+    "graphene"
+  ],
+  "author": "jeremy-deutsch",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^3.0.0",
+    "graphql": "^14.4.2"
+  },
+  "devDependencies": {
+    "@types/graphql": "^14.2.3",
+    "@types/node": "^12.7.1",
+    "nodemon": "^1.19.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
+  }
+}
