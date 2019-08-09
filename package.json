@@ -1,6 +1,6 @@
 {
   "name": "graphene-codegen",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate Graphene Python boilerplate from a GraphQL schema.",
   "main": "./lib/index.js",
   "bin": {
@@ -10,7 +10,9 @@
     "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "create": "npm run build && npm run test",
     "build": "tsc -p .",
-    "refresh": "rm -rf ./node_modules && npm install"
+    "test": "true",
+    "refresh": "rm -rf ./node_modules && npm install",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "graphql",
