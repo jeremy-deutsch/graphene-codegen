@@ -15,7 +15,7 @@ if (!program.schema) {
 
 const builtInScalars = new Set(["String", "Float", "Int", "Boolean", "ID"])
 
-const schemaDocument = fs.readFileSync(program.path)
+const schemaDocument = fs.readFileSync(program.schema)
 const schemaString = schemaDocument.toString()
 const schemaASTRoot = parse(schemaString)
 
