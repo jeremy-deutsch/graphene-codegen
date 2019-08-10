@@ -2,7 +2,8 @@ import {
   parse,
   TypeNode,
   FieldDefinitionNode,
-  ObjectTypeDefinitionNode
+  ObjectTypeDefinitionNode,
+  InputValueDefinitionNode
 } from "graphql/language"
 
 const builtInScalars = new Set(["String", "Float", "Int", "Boolean", "ID"])
@@ -114,7 +115,7 @@ function getFieldArguments(field: FieldDefinitionNode, ctx: Context): string {
           collisionArgs[argName] = typeName
         }
       } else {
-        const typeName = getArgumentTypeDeclaration(arg.type, ctx)
+        const typeName = getArgumentTypeDeclaration(arg, ctx)
         extraArgs.push(`${argName}=${typeName}`)
       }
     }
@@ -133,7 +134,7 @@ function getFieldTypeDeclaration(
 ): string {
   switch (typeNode.kind) {
     case "NonNullType": {
-      if (extraArgsStr) extraArgsStr = ", " + extraArgsStr
+      if (extraArgsStr !== "") extraArgsStr = ", " + extraArgsStr
 
       ctx.addGrapheneImport("NonNull")
       return `NonNull(${getNestedTypeDeclaration(
@@ -142,7 +143,7 @@ function getFieldTypeDeclaration(
       )}${extraArgsStr})`
     }
     case "ListType": {
-      if (extraArgsStr) extraArgsStr = ", " + extraArgsStr
+      if (extraArgsStr !== "") extraArgsStr = ", " + extraArgsStr
 
       ctx.addGrapheneImport("List")
       return `List(${getNestedTypeDeclaration(
@@ -155,7 +156,7 @@ function getFieldTypeDeclaration(
         ctx.addGrapheneImport(typeNode.name.value)
         return `${typeNode.name.value}(${extraArgsStr})`
       }
-      if (extraArgsStr) extraArgsStr = ", " + extraArgsStr
+      if (extraArgsStr !== "") extraArgsStr = ", " + extraArgsStr
       ctx.addGrapheneImport("Field")
       return `Field(${typeNode.name.value}${extraArgsStr})`
     }
@@ -165,20 +166,34 @@ function getFieldTypeDeclaration(
   throw new Error(`Expected type node but node was ${typeNode.kind}`)
 }
 
-function getArgumentTypeDeclaration(typeNode: TypeNode, ctx: Context): string {
+function getArgumentTypeDeclaration(
+  argNode: InputValueDefinitionNode,
+  ctx: Context
+): string {
+  let argsStr = ""
+  if (argNode.description) {
+    argsStr = `description='${argNode.description.value}'`
+  }
+
+  const typeNode = argNode.type
   switch (typeNode.kind) {
     case "NonNullType": {
       ctx.addGrapheneImport("NonNull")
-      return `NonNull(${getNestedTypeDeclaration(typeNode.type, ctx)})`
+      if (argsStr !== "") argsStr = ", " + argsStr
+      return `NonNull(${getNestedTypeDeclaration(
+        typeNode.type,
+        ctx
+      )}${argsStr})`
     }
     case "ListType": {
       ctx.addGrapheneImport("List")
-      return `List(${getNestedTypeDeclaration(typeNode.type, ctx)})`
+      if (argsStr !== "") argsStr = ", " + argsStr
+      return `List(${getNestedTypeDeclaration(typeNode.type, ctx)}${argsStr})`
     }
     case "NamedType": {
       if (builtInScalars.has(typeNode.name.value)) {
         ctx.addGrapheneImport(typeNode.name.value)
-        return `${typeNode.name.value}()`
+        return `${typeNode.name.value}(${argsStr})`
       } else {
         // honestly I just don't feel like handling this yet
         throw new Error(`Invalid argument type ${typeNode.name.value}`)
