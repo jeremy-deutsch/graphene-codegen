@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generates stable python code 1`] = `
+"from graphene import ObjectType, Int, String, NonNull, ID, Field, List, Boolean
+
+class Query(ObjectType):
+  launches = NonNull(LaunchConnection, pageSize=Int(), after=String())
+  launch = Field(Launch, id=NonNull(ID))
+  me = Field(User)
+
+class Mutation(ObjectType):
+  book_trips = NonNull(TripUpdateResponse, launchIds=NonNull(List(ID)))
+  cancel_trip = NonNull(TripUpdateResponse, launchId=NonNull(ID))
+  login = String(email=String())
+
+class TripUpdateResponse(ObjectType):
+  success = NonNull(Boolean)
+  message = String()
+  launches = List(Launch)
+
+class LaunchConnection(ObjectType):
+  cursor = NonNull(String)
+  has_more = NonNull(Boolean)
+  launches = NonNull(List(Launch))
+
+class Launch(ObjectType):
+  id = NonNull(ID)
+  site = String()
+  mission = Field(Mission)
+  rocket = Field(Rocket)
+  is_booked = NonNull(Boolean)
+
+class Rocket(ObjectType):
+  id = NonNull(ID)
+  name = String()
+  type = String()
+
+class User(ObjectType):
+  id = NonNull(ID)
+  email = NonNull(String)
+  trips = NonNull(List(Launch))
+
+class Mission(ObjectType):
+  name = String()
+  mission_patch = String(size=String())
+"
+`;

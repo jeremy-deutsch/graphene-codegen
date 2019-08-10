@@ -10,9 +10,9 @@
     "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "create": "npm run build && npm run test",
     "build": "tsc -p .",
-    "test": "true",
+    "test": "jest",
     "refresh": "rm -rf ./node_modules && npm install",
-    "prepublish": "npm run build"
+    "prepublish": "npm run test && npm run build"
   },
   "keywords": [
     "graphql",
@@ -22,14 +22,17 @@
   "repository": "https://github.com/jeremy-deutsch/graphene-codegen",
   "license": "ISC",
   "dependencies": {
+    "@types/jest": "^24.0.17",
     "commander": "^3.0.0",
     "graphql": "^14.4.2"
   },
   "devDependencies": {
     "@types/graphql": "^14.2.3",
     "@types/node": "^12.7.1",
+    "jest": "^24.8.0",
     "nodemon": "^1.19.1",
     "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
   }
