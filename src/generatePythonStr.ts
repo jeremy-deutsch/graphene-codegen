@@ -57,6 +57,17 @@ export default function generatePythonStr(schemaStr: string): string {
           classStr += "  pass\n"
         }
         classDeclarations.push(classStr)
+        break
+      }
+      case "ScalarTypeDefinition": {
+        context.addGrapheneImport("Scalar")
+        let classStr = `class ${definition.name.value}(Scalar):\n`
+        if (definition.description) {
+          classStr += `  '''${definition.description.value}'''\n`
+        }
+        classStr += "  pass\n"
+        classDeclarations.push(classStr)
+        break
       }
     }
   }

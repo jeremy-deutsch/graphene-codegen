@@ -2,7 +2,7 @@
 
 ### For when you have a schema but want to use Python.
 
-Note: only generates object types at the moment, and doesn't output classes in the right order.
+Note: only generates object and scalar types at the moment, and doesn't output classes in the right order.
 Also doesn't support default arguments yet.
 
 ### Usage

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`generates stable python code 1`] = `
-"from graphene import ObjectType, Int, String, NonNull, ID, Field, List, Boolean
+"from graphene import ObjectType, Int, String, NonNull, ID, Field, List, Boolean, Scalar
 
 class Query(ObjectType):
   launches = NonNull(LaunchConnection, pageSize=Int(description='The number of results to show. Must be >= 1. Default = 20'), after=String(description='If you add a cursor here, it will only return results _after_ this cursor'))
@@ -34,6 +34,10 @@ class Launch(ObjectType):
   mission = Field(Mission)
   rocket = Field(Rocket)
   is_booked = NonNull(Boolean)
+
+class Lightyear(Scalar):
+  '''A better way to measure how far rockets go.'''
+  pass
 
 class Rocket(ObjectType):
   id = NonNull(ID)

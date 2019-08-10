@@ -48,6 +48,10 @@ type Launch {
   rocket: Rocket
   isBooked: Boolean!
 }
+"""
+A better way to measure how far rockets go.
+"""
+scalar Lightyear
 type Rocket {
   id: ID!
   name: String
