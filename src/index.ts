@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { parse, TypeNode, InputValueDefinitionNode, FieldDefinitionNode } from "graphql/language"
+import { parse, TypeNode, FieldDefinitionNode } from "graphql/language"
 import fs from "fs"
 import program from "commander"
 
@@ -33,9 +33,7 @@ for (const definition of schemaASTRoot.definitions) {
           const fieldName = camelCaseToSnakeCase(field.name.value)
           const fieldArguments = getFieldArguments(field)
           const fieldType = getFieldTypeDeclaration(field.type, fieldArguments)
-          fieldStrs.push(
-            `  ${fieldName} = ${fieldType}`
-          )
+          fieldStrs.push(`  ${fieldName} = ${fieldType}`)
         }
         const pythonClassDef = classStr + "\n" + fieldStrs.join("\n") + "\n"
         classDeclarations.push(pythonClassDef)
@@ -52,7 +50,7 @@ if (typeof program.out === "string") {
   outFilePath = program.out
 }
 
-if (classDeclarations.length){
+if (classDeclarations.length) {
   let outStr = ""
   if (imports.size) {
     outStr += `from graphene import ${Array.from(imports).join(", ")}\n\n`
@@ -94,7 +92,7 @@ function getFieldArguments(field: FieldDefinitionNode): string {
         extraArgs.push(`${argName}=${typeName}`)
       }
     }
-    
+
     if (collisionArgs) {
       extraArgs.push(`args=${objToDictLiteral(collisionArgs)}`)
     }
@@ -111,7 +109,9 @@ function getFieldTypeDeclaration(
       if (extraArgsStr) extraArgsStr = ", " + extraArgsStr
 
       imports.add("NonNull")
-      return `NonNull(${getNestedTypeDeclaration(typeNode.type)}${extraArgsStr})`
+      return `NonNull(${getNestedTypeDeclaration(
+        typeNode.type
+      )}${extraArgsStr})`
     }
     case "ListType": {
       if (extraArgsStr) extraArgsStr = ", " + extraArgsStr
@@ -183,5 +183,5 @@ function isSnakeCase(str: string) {
 }
 
 function camelCaseToSnakeCase(str: string) {
-  return str.replace(/[\w]([A-Z])/g, m => m[0] + "_" + m[1]).toLowerCase();
+  return str.replace(/[\w]([A-Z])/g, m => m[0] + "_" + m[1]).toLowerCase()
 }
