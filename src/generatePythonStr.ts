@@ -67,6 +67,10 @@ function getFieldArguments(field: FieldDefinitionNode, ctx: Context): string {
     extraArgs.push(`name='${field.name.value}'`)
     reservedArgNames.add("name")
   }
+  if (field.description) {
+    extraArgs.push(`description='${field.description.value}'`)
+    reservedArgNames.add("description")
+  }
   if (field.arguments) {
     // these are the args that will make up the "args" parameter
     let collisionArgs = null

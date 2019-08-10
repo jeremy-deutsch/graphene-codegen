@@ -11,7 +11,7 @@ class Query(ObjectType):
 class Mutation(ObjectType):
   book_trips = NonNull(TripUpdateResponse, launchIds=NonNull(List(ID)))
   cancel_trip = NonNull(TripUpdateResponse, launchId=NonNull(ID))
-  login = String(email=String())
+  login = String(description='login token', email=String())
 
 class TripUpdateResponse(ObjectType):
   success = NonNull(Boolean)

@@ -21,7 +21,10 @@ type Mutation {
   bookTrips(launchIds: [ID]!): TripUpdateResponse!
   # if false, cancellation failed -- check errors
   cancelTrip(launchId: ID!): TripUpdateResponse!
-  login(email: String): String # login token
+  """
+  login token
+  """
+  login(email: String): String
 }
 type TripUpdateResponse {
   success: Boolean!
