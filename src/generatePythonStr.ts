@@ -32,10 +32,8 @@ export default function generatePythonStr(schemaStr: string): string {
         let classStr = `class ${definition.name.value}(ObjectType):\n`
         let isEmptyClass = true
 
-        const classMeta = getObjectTypeMeta(definition)
-        if (classMeta) {
-          classStr += classMeta
-          isEmptyClass = false
+        if (definition.description && definition.description.value.length) {
+          classStr += `  '''${definition.description.value}'''\n`
         }
 
         if (definition.fields && definition.fields.length) {
@@ -80,20 +78,6 @@ export default function generatePythonStr(schemaStr: string): string {
     outStr += classDeclarations.join("\n")
   }
   return outStr
-}
-
-function getObjectTypeMeta(
-  definition: ObjectTypeDefinitionNode
-): string | null {
-  const metaOptions: string[] = []
-  if (definition.description) {
-    metaOptions.push(`    description = '${definition.description.value}'`)
-  }
-  if (metaOptions.length) {
-    return `  class Meta:\n${metaOptions.join("\n")}\n\n`
-  } else {
-    return null
-  }
 }
 
 function objToDictLiteral(obj: { [key: string]: string }): string {
