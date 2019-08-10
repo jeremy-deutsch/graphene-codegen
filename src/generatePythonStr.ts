@@ -1,4 +1,9 @@
-import { parse, TypeNode, FieldDefinitionNode } from "graphql/language"
+import {
+  parse,
+  TypeNode,
+  FieldDefinitionNode,
+  ObjectTypeDefinitionNode
+} from "graphql/language"
 
 const builtInScalars = new Set(["String", "Float", "Int", "Boolean", "ID"])
 
@@ -21,9 +26,19 @@ export default function generatePythonStr(schemaStr: string): string {
   for (const definition of schemaASTRoot.definitions) {
     switch (definition.kind) {
       case "ObjectTypeDefinition": {
-        imports.add("ObjectType")
-        const classStr = `class ${definition.name.value}(ObjectType):`
-        if (definition.fields) {
+        context.addGrapheneImport("ObjectType")
+
+        let classStr = `class ${definition.name.value}(ObjectType):\n`
+        let isEmptyClass = true
+
+        const classMeta = getObjectTypeMeta(definition)
+        if (classMeta) {
+          classStr += classMeta
+          isEmptyClass = false
+        }
+
+        if (definition.fields && definition.fields.length) {
+          isEmptyClass = false
           const fieldStrs: string[] = []
           for (const field of definition.fields) {
             const fieldName = camelCaseToSnakeCase(field.name.value)
@@ -35,12 +50,12 @@ export default function generatePythonStr(schemaStr: string): string {
             )
             fieldStrs.push(`  ${fieldName} = ${fieldType}`)
           }
-          const pythonClassDef = classStr + "\n" + fieldStrs.join("\n") + "\n"
-          classDeclarations.push(pythonClassDef)
-        } else {
-          const pythonClassDef = classStr + "\n  pass\n"
-          classDeclarations.push(pythonClassDef)
+          classStr += fieldStrs.join("\n") + "\n"
         }
+        if (isEmptyClass) {
+          classStr += "  pass\n"
+        }
+        classDeclarations.push(classStr)
       }
     }
   }
@@ -53,6 +68,20 @@ export default function generatePythonStr(schemaStr: string): string {
     outStr += classDeclarations.join("\n")
   }
   return outStr
+}
+
+function getObjectTypeMeta(
+  definition: ObjectTypeDefinitionNode
+): string | null {
+  const metaOptions: string[] = []
+  if (definition.description) {
+    metaOptions.push(`    description = '${definition.description.value}'`)
+  }
+  if (metaOptions.length) {
+    return `  class Meta:\n${metaOptions.join("\n")}\n\n`
+  } else {
+    return null
+  }
 }
 
 function objToDictLiteral(obj: { [key: string]: string }): string {
