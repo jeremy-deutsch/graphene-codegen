@@ -40,7 +40,17 @@ export default function generatePythonStr(schemaStr: string): string {
           classStr += `  '''${definition.description.value}'''\n`
         }
 
+        if (definition.interfaces && definition.interfaces.length) {
+          isEmptyClass = false
+          classStr += "  class Meta:\n"
+          const interfaceNames = definition.interfaces.map(
+            iface => iface.name.value
+          )
+          classStr += `    interfaces = ${tupleStr(interfaceNames)}\n`
+        }
+
         if (definition.fields && definition.fields.length) {
+          if (!isEmptyClass) classStr += "\n"
           isEmptyClass = false
           const fieldStrs: string[] = []
           for (const field of definition.fields) {
@@ -153,7 +163,7 @@ export default function generatePythonStr(schemaStr: string): string {
         if (definition.types && definition.types.length) {
           classStr += "  class Meta:\n"
           const unionTypeNames = definition.types.map(type => type.name.value)
-          classStr += `    types = (${unionTypeNames.join(", ")})\n`
+          classStr += `    types = ${tupleStr(unionTypeNames)}\n`
         } else {
           classStr += "  pass\n"
         }
@@ -337,4 +347,12 @@ function isSnakeCase(str: string) {
 
 function camelCaseToSnakeCase(str: string) {
   return str.replace(/[\w]([A-Z])/g, m => m[0] + "_" + m[1]).toLowerCase()
+}
+
+function tupleStr(strs: string[]) {
+  if (strs.length === 1) {
+    return `(${strs[0]}, )`
+  } else {
+    return `(${strs.join(", ")})`
+  }
 }

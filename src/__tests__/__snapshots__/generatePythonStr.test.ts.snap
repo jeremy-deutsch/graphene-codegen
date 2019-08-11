@@ -66,11 +66,17 @@ class Planet(Interface):
   moon_names = List(NonNull(String))
 
 class RockyPlanet(ObjectType):
+  class Meta:
+    interfaces = (Planet, )
+
   name = NonNull(String)
   moon_names = List(NonNull(String))
   density = Float()
 
 class GasPlanet(ObjectType):
+  class Meta:
+    interfaces = (Planet, )
+
   name = NonNull(String)
   moon_names = List(NonNull(String))
   core_width = Int()

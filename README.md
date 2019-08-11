@@ -2,7 +2,7 @@
 
 ### For when you have a schema but want to use Python.
 
-Note: doesn't generate interface types yet, and doesn't output classes in the right order.
+Note: doesn't output classes in the correct dependency order.
 Also doesn't translate directives or default arguments yet.
 
 ### Usage
