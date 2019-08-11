@@ -69,12 +69,20 @@ type User {
 }
 type Mission {
   name: String
+  destination: Destination
   missionPatch(size: PatchSize): String
 }
 enum PatchSize {
   SMALL
   LARGE
 }
+type Planet {
+  population: Int
+}
+type AsteroidBelt {
+  numAsteroids: Int
+}
+union Destination = Planet | AsteroidBelt
 `
 
 it("generates stable python code", () => {

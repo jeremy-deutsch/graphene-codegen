@@ -116,6 +116,22 @@ export default function generatePythonStr(schemaStr: string): string {
         classDeclarations.push(classStr)
         break
       }
+      case "UnionTypeDefinition": {
+        context.addGrapheneImport("Union")
+        let classStr = `class ${definition.name.value}(Union):\n`
+        if (definition.description && definition.description.value.length) {
+          classStr += `  '''${definition.description.value}'''\n`
+        }
+        if (definition.types && definition.types.length) {
+          classStr += "  class Meta:\n"
+          const unionTypeNames = definition.types.map(type => type.name.value)
+          classStr += `    types = (${unionTypeNames.join(", ")})\n`
+        } else {
+          classStr += "  pass\n"
+        }
+        classDeclarations.push(classStr)
+        break
+      }
     }
   }
 
