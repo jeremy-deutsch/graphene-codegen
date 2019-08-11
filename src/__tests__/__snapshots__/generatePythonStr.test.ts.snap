@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`generates stable python code 1`] = `
-"from graphene import Schema, ObjectType, Int, String, NonNull, ID, Field, List, Boolean, Scalar, Argument, Enum
+"from graphene import Schema, ObjectType, Int, String, NonNull, ID, Field, List, Argument, InputObjectType, InputField, Boolean, Scalar, Enum
 
 class Query(ObjectType):
   launches = NonNull(LaunchConnection, pageSize=Int(description='The number of results to show. Must be >= 1. Default = 20'), after=String(description='If you add a cursor here, it will only return results _after_ this cursor'))
@@ -10,8 +10,13 @@ class Query(ObjectType):
 
 class Mutation(ObjectType):
   book_trips = NonNull(TripUpdateResponse, launchIds=NonNull(List(ID)))
+  book_trip = NonNull(TripUpdateResponse, tripInfo=Argument(LongTripInput))
   cancel_trip = NonNull(TripUpdateResponse, launchId=NonNull(ID))
   login = String(description='login token', email=String())
+
+class LongTripInput(InputObjectType):
+  launch_id = NonNull(ID)
+  time_in_space = InputField(Lightyear, name='time_in_space')
 
 class TripUpdateResponse(ObjectType):
   success = NonNull(Boolean)

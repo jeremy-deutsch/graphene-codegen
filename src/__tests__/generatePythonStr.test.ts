@@ -19,12 +19,17 @@ type Query {
 type Mutation {
   # if false, signup failed -- check errors
   bookTrips(launchIds: [ID]!): TripUpdateResponse!
+  bookTrip(tripInfo: LongTripInput): TripUpdateResponse!
   # if false, cancellation failed -- check errors
   cancelTrip(launchId: ID!): TripUpdateResponse!
   """
   login token
   """
   login(email: String): String
+}
+input LongTripInput {
+  launchId: ID!
+  time_in_space: Lightyear
 }
 type TripUpdateResponse {
   success: Boolean!

@@ -2,7 +2,6 @@ import {
   parse,
   TypeNode,
   FieldDefinitionNode,
-  ObjectTypeDefinitionNode,
   InputValueDefinitionNode
 } from "graphql/language"
 
@@ -48,7 +47,7 @@ export default function generatePythonStr(schemaStr: string): string {
             const fieldName = camelCaseToSnakeCase(field.name.value)
             const fieldArguments = getFieldArguments(field, context)
             const fieldType = getFieldTypeDeclaration(
-              field.type,
+              field,
               fieldArguments,
               context
             )
@@ -62,10 +61,39 @@ export default function generatePythonStr(schemaStr: string): string {
         classDeclarations.push(classStr)
         break
       }
+      case "InputObjectTypeDefinition": {
+        context.addGrapheneImport("InputObjectType")
+
+        let classStr = `class ${definition.name.value}(InputObjectType):\n`
+
+        if (definition.description && definition.description.value.length) {
+          classStr += `  '''${definition.description.value}'''\n`
+        }
+
+        if (definition.fields && definition.fields.length) {
+          const fieldStrs: string[] = []
+          for (const field of definition.fields) {
+            const fieldName = camelCaseToSnakeCase(field.name.value)
+            const fieldArguments = getFieldArguments(field, context)
+            const fieldType = getFieldTypeDeclaration(
+              field,
+              fieldArguments,
+              context
+            )
+            fieldStrs.push(`  ${fieldName} = ${fieldType}`)
+          }
+          classStr += fieldStrs.join("\n") + "\n"
+        } else {
+          classStr += "  pass\n"
+        }
+
+        classDeclarations.push(classStr)
+        break
+      }
       case "ScalarTypeDefinition": {
         context.addGrapheneImport("Scalar")
         let classStr = `class ${definition.name.value}(Scalar):\n`
-        if (definition.description) {
+        if (definition.description && definition.description.value.length) {
           classStr += `  '''${definition.description.value}'''\n`
         }
         classStr += "  pass\n"
@@ -75,7 +103,7 @@ export default function generatePythonStr(schemaStr: string): string {
       case "EnumTypeDefinition": {
         context.addGrapheneImport("Enum")
         let classStr = `class ${definition.name.value}(Enum):\n`
-        if (definition.description) {
+        if (definition.description && definition.description.value.length) {
           classStr += `  '''${definition.description.value}'''\n`
         }
         if (definition.values) {
@@ -108,9 +136,13 @@ function objToDictLiteral(obj: { [key: string]: string }): string {
   return `{${pairs.join(", ")}}`
 }
 
-function getFieldArguments(field: FieldDefinitionNode, ctx: Context): string {
+function getFieldArguments(
+  field: FieldDefinitionNode | InputValueDefinitionNode,
+  ctx: Context
+): string {
   const reservedArgNames = new Set()
   const extraArgs = []
+  // special case arguments - these need to work for both Fields and InputFields
   if (isSnakeCase(field.name.value)) {
     extraArgs.push(`name='${field.name.value}'`)
     reservedArgNames.add("name")
@@ -119,7 +151,8 @@ function getFieldArguments(field: FieldDefinitionNode, ctx: Context): string {
     extraArgs.push(`description='${field.description.value}'`)
     reservedArgNames.add("description")
   }
-  if (field.arguments) {
+  // input fields don't have arguments
+  if ("arguments" in field && field.arguments) {
     // these are the args that will make up the "args" parameter
     let collisionArgs = null
     for (const arg of field.arguments) {
@@ -154,10 +187,11 @@ function getFieldArguments(field: FieldDefinitionNode, ctx: Context): string {
 }
 
 function getFieldTypeDeclaration(
-  typeNode: TypeNode,
+  fieldNode: FieldDefinitionNode | InputValueDefinitionNode,
   extraArgsStr: string,
   ctx: Context
 ): string {
+  const typeNode = fieldNode.type
   switch (typeNode.kind) {
     case "NonNullType": {
       if (extraArgsStr !== "") extraArgsStr = ", " + extraArgsStr
@@ -183,8 +217,10 @@ function getFieldTypeDeclaration(
         return `${typeNode.name.value}(${extraArgsStr})`
       }
       if (extraArgsStr !== "") extraArgsStr = ", " + extraArgsStr
-      ctx.addGrapheneImport("Field")
-      return `Field(${typeNode.name.value}${extraArgsStr})`
+      const fieldClassName =
+        fieldNode.kind === "FieldDefinition" ? "Field" : "InputField"
+      ctx.addGrapheneImport(fieldClassName)
+      return `${fieldClassName}(${typeNode.name.value}${extraArgsStr})`
     }
   }
 
