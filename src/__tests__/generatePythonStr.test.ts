@@ -76,13 +76,24 @@ enum PatchSize {
   SMALL
   LARGE
 }
-type Planet {
-  population: Int
+interface Planet {
+  name: String!
+  moonNames: [String!]
+}
+type RockyPlanet implements Planet {
+  name: String!
+  moonNames: [String!]
+  density: Float
+}
+type GasPlanet implements Planet {
+  name: String!
+  moonNames: [String!]
+  coreWidth: Int
 }
 type AsteroidBelt {
   numAsteroids: Int
 }
-union Destination = Planet | AsteroidBelt
+union Destination = RockyPlanet | GasPlanet | AsteroidBelt
 `
 
 it("generates stable python code", () => {

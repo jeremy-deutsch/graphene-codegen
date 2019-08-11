@@ -90,6 +90,34 @@ export default function generatePythonStr(schemaStr: string): string {
         classDeclarations.push(classStr)
         break
       }
+      case "InterfaceTypeDefinition": {
+        context.addGrapheneImport("Interface")
+
+        let classStr = `class ${definition.name.value}(Interface):\n`
+        if (definition.description && definition.description.value.length) {
+          classStr += `  '''${definition.description.value}'''\n`
+        }
+
+        if (definition.fields && definition.fields.length) {
+          const fieldStrs: string[] = []
+          for (const field of definition.fields) {
+            const fieldName = camelCaseToSnakeCase(field.name.value)
+            const fieldArguments = getFieldArguments(field, context)
+            const fieldType = getFieldTypeDeclaration(
+              field,
+              fieldArguments,
+              context
+            )
+            fieldStrs.push(`  ${fieldName} = ${fieldType}`)
+          }
+          classStr += fieldStrs.join("\n") + "\n"
+        } else {
+          classStr += "  pass\n"
+        }
+
+        classDeclarations.push(classStr)
+        break
+      }
       case "ScalarTypeDefinition": {
         context.addGrapheneImport("Scalar")
         let classStr = `class ${definition.name.value}(Scalar):\n`
