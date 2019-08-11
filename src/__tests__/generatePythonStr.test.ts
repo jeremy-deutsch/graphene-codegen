@@ -66,6 +66,10 @@ type Mission {
   name: String
   missionPatch(size: String): String
 }
+enum PatchSize {
+  SMALL
+  LARGE
+}
 `
 
 it("generates stable python code", () => {

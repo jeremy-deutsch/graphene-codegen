@@ -67,6 +67,22 @@ export default function generatePythonStr(schemaStr: string): string {
         classDeclarations.push(classStr)
         break
       }
+      case "EnumTypeDefinition": {
+        context.addGrapheneImport("Enum")
+        let classStr = `class ${definition.name.value}(Enum):\n`
+        if (definition.description) {
+          classStr += `  '''${definition.description.value}'''\n`
+        }
+        if (definition.values) {
+          for (let i = 0; i < definition.values.length; i++) {
+            classStr += `  ${definition.values[i].name.value} = ${i}\n`
+          }
+        } else {
+          classStr += "  pass\n"
+        }
+        classDeclarations.push(classStr)
+        break
+      }
     }
   }
 
