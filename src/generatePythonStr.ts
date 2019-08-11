@@ -15,7 +15,8 @@ interface Context {
 export default function generatePythonStr(schemaStr: string): string {
   const schemaASTRoot = parse(schemaStr)
 
-  const imports = new Set<string>()
+  const imports = new Set<string>(["Schema"])
+  let mutationTypeExists = false
   const classDeclarations: string[] = []
 
   const context = {
@@ -28,6 +29,10 @@ export default function generatePythonStr(schemaStr: string): string {
     switch (definition.kind) {
       case "ObjectTypeDefinition": {
         context.addGrapheneImport("ObjectType")
+
+        if (definition.name.value === "Mutation") {
+          mutationTypeExists = true
+        }
 
         let classStr = `class ${definition.name.value}(ObjectType):\n`
         let isEmptyClass = true
@@ -92,6 +97,8 @@ export default function generatePythonStr(schemaStr: string): string {
       outStr += `from graphene import ${Array.from(imports).join(", ")}\n\n`
     }
     outStr += classDeclarations.join("\n")
+    const mutationArg = mutationTypeExists ? ", mutation=Mutation" : ""
+    outStr += `\nschema = Schema(query=Query${mutationArg})\n`
   }
   return outStr
 }
