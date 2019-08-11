@@ -221,8 +221,9 @@ function getArgumentTypeDeclaration(
         ctx.addGrapheneImport(typeNode.name.value)
         return `${typeNode.name.value}(${argsStr})`
       } else {
-        // honestly I just don't feel like handling this yet
-        throw new Error(`Invalid argument type ${typeNode.name.value}`)
+        if (argsStr !== "") argsStr = ", " + argsStr
+        ctx.addGrapheneImport("Argument")
+        return `Argument(${typeNode.name.value}${argsStr})`
       }
     }
   }
