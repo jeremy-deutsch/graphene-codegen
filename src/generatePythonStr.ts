@@ -118,8 +118,16 @@ function getFieldArguments(field: FieldDefinitionNode, ctx: Context): string {
     for (const arg of field.arguments) {
       const argName = arg.name.value
       if (reservedArgNames.has(argName)) {
+        let descriptionStr = ""
+        if (arg.description) {
+          descriptionStr = `, description=${arg.description.value}`
+        }
+
         ctx.addGrapheneImport("Argument")
-        const typeName = `Argument(${getNestedTypeDeclaration(arg.type, ctx)})`
+        const typeName = `Argument(${getNestedTypeDeclaration(
+          arg.type,
+          ctx
+        )}${descriptionStr})`
         if (!collisionArgs) {
           collisionArgs = { [argName]: typeName }
         } else {
