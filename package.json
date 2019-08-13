@@ -1,6 +1,6 @@
 {
   "name": "graphene-codegen",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Generate Graphene Python boilerplate from a GraphQL schema.",
   "main": "./lib/index.js",
   "bin": {
@@ -22,13 +22,13 @@
   "repository": "https://github.com/jeremy-deutsch/graphene-codegen",
   "license": "ISC",
   "dependencies": {
-    "@types/jest": "^24.0.17",
     "commander": "^3.0.0",
     "graphql": "^14.4.2"
   },
   "devDependencies": {
     "@types/graphql": "^14.2.3",
     "@types/node": "^12.7.1",
+    "@types/jest": "^24.0.17",
     "jest": "^24.8.0",
     "nodemon": "^1.19.1",
     "prettier": "^1.18.2",
