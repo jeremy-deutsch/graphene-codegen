@@ -14,7 +14,7 @@ $ graphene-codegen --schema="./schema.graphql" --out="gen.py"
 
 ### Example
 
-#### SDL
+#### Input file
 ```graphql
 enum Episode {
   NEWHOPE
@@ -63,7 +63,7 @@ type Query {
 }
 ```
 
-#### Python
+#### Output file
 ```python
 from graphene import Schema, Enum, ObjectType, NonNull, ID, String, Float, Interface, List, Int, Union, Argument, Field
 
