@@ -15,7 +15,8 @@ export default function generatePythonStr(schemaStr: string): string {
   const schemaASTRoot = parse(schemaStr)
 
   const imports = new Set<string>(["Schema"])
-  let mutationTypeExists = false
+  let queryTypeName = "Query"
+  let mutationTypeName: string | null = null
   const classDeclarations: string[] = []
 
   const context = {
@@ -26,11 +27,26 @@ export default function generatePythonStr(schemaStr: string): string {
 
   for (const definition of schemaASTRoot.definitions) {
     switch (definition.kind) {
+      case "SchemaDefinition": {
+        for (const operationType of definition.operationTypes) {
+          switch (operationType.operation) {
+            case "query": {
+              queryTypeName = operationType.type.name.value
+              break
+            }
+            case "mutation": {
+              mutationTypeName = operationType.type.name.value
+              break
+            }
+          }
+        }
+        break
+      }
       case "ObjectTypeDefinition": {
         context.addGrapheneImport("ObjectType")
 
-        if (definition.name.value === "Mutation") {
-          mutationTypeExists = true
+        if (definition.name.value === "Mutation" && mutationTypeName === null) {
+          mutationTypeName = "Mutation"
         }
 
         let classStr = `class ${definition.name.value}(ObjectType):\n`
@@ -179,8 +195,9 @@ export default function generatePythonStr(schemaStr: string): string {
       outStr += `from graphene import ${Array.from(imports).join(", ")}\n\n`
     }
     outStr += classDeclarations.join("\n")
-    const mutationArg = mutationTypeExists ? ", mutation=Mutation" : ""
-    outStr += `\nschema = Schema(query=Query${mutationArg})\n`
+    const mutationArg =
+      mutationTypeName !== null ? `, mutation=${mutationTypeName}` : ""
+    outStr += `\nschema = Schema(query=${queryTypeName}${mutationArg})\n`
   }
   return outStr
 }

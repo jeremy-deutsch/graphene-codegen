@@ -94,6 +94,10 @@ type AsteroidBelt {
   numAsteroids: Int
 }
 union Destination = RockyPlanet | GasPlanet | AsteroidBelt
+schema {
+  query: Query
+  mutation: Mutation
+}
 `
 
 it("generates stable python code", () => {
